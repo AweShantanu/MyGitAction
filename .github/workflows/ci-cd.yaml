@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Updated to latest version
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
@@ -22,12 +22,12 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v2  # Updated to v2
 
-      - name: Install Python Dependencies
-        run: pip install -r requirements.txt
+      - name: Authenticate Docker to GCR
+        run: gcloud auth configure-docker gcr.io  # ✅ Added step to authenticate Docker
 
-      - name: Build Docker Image
+      - name: Build & Push Docker Image
         run: |
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-flask-app:${{ github.sha }} .
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-flask-app:${{ github.sha }}
