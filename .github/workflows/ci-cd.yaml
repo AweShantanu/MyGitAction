@@ -14,28 +14,28 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4  # Updated to latest version
+        uses: actions/checkout@v4  # ✅ Correct version
 
       - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v2  # ✅ Correct version
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}  # ✅ Secure authentication
 
       - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2  # Updated to v2
+        uses: google-github-actions/setup-gcloud@v2  # ✅ Correct version
 
-      - name: Authenticate Docker to GCR
-        run: gcloud auth configure-docker gcr.io  # ✅ Added step to authenticate Docker
+      - name: Authenticate Docker to Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev  # ✅ Matches the region
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-flask-app:${{ github.sha }} .
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-flask-app:${{ github.sha }}
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-flask-app-repo/my-flask-app:${{ github.sha }} .
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-flask-app-repo/my-flask-app:${{ github.sha }}
 
       - name: Deploy to Google Cloud Run
         run: |
           gcloud run deploy my-flask-app \
-            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-flask-app:${{ github.sha }} \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-flask-app-repo/my-flask-app:${{ github.sha }} \
             --platform managed \
-            --region asia-south1 \
+            --region us-central1 \
             --allow-unauthenticated
